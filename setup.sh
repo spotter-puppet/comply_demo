@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 
 # This script will help setup alpha Comply based on the documentation and artifacts found at
 # https://drive.google.com/drive/u/0/folders/0AOywIQsKa0wIUk9PVA
@@ -43,13 +43,12 @@ tar xf ${CR_BASE}/puppetlabs-comply-${VERSION}.tar
 mv puppetlabs-comply-${VERSION} comply
 
 cd ${CR_WORK}
-cp ${CR_BASE}/Puppetfile .
+#cp ${CR_BASE}/Puppetfile .
 
 git add .
 git diff
 git commit -m "Added comply package"
 git status
-sleep 30
 git push origin ${GIT_BRANCH}
 
 # Need to add PE IP address on comply node and COMPLY IP address on server node
@@ -59,7 +58,7 @@ CP_ADDR=`ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}
 ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}master0.classroom.puppet.com "sudo sh -c \"echo $CP_ADDR    comply.classroom.puppet.com >> /etc/hosts\""
 
 # Copy needed files to comply server and run the installer; run the puppet agent installer as well
-scp -i ~/.ssh/training.pem ${CR_BASE}/comply-stack-${VERSION}.tar ${CR_BASE}/image_helper.sh ${CR_BASE}/install_comply.sh centos@${PROJECT}comply0.classroom.puppet.com:
+scp -i ~/.ssh/training.pem ${CR_BASE}/comply-stack.tar ${CR_BASE}/image_helper.sh ${CR_BASE}/install_comply.sh centos@${PROJECT}comply0.classroom.puppet.com:
 ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}comply0.classroom.puppet.com /home/centos/install_comply.sh ${PROJECT}
 
 # Run code manager to get the comply package in place on the PE server
