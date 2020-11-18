@@ -65,9 +65,9 @@ ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}master0.c
 TOKEN=`curl -s -S -k -X POST -H 'Content-Type: application/json' -d '{"login": "admin", "password": "puppetlabs"}' https://${PROJECT}-master.classroom.puppet.com:4433/rbac-api/v1/auth/token |jq -r '.token'`
 curl -s -S -k -X POST -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" https://${PROJECT}-master.classroom.puppet.com:4433/classifier-api/v1/update-classes?environment=${GIT_BRANCH}
 
-WINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","win\d"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
+WINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","win[0-9]"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
 
-LINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","nix\d"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
+LINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","nix[0-9]"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
 
 # Windows in Hydra is currently broken and needs to have the FQDN fixed
 for HOST in $WINNODES
