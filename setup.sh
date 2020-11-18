@@ -65,15 +65,16 @@ ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}master0.c
 TOKEN=`curl -s -S -k -X POST -H 'Content-Type: application/json' -d '{"login": "admin", "password": "puppetlabs"}' https://${PROJECT}-master.classroom.puppet.com:4433/rbac-api/v1/auth/token |jq -r '.token'`
 curl -s -S -k -X POST -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" https://${PROJECT}-master.classroom.puppet.com:4433/classifier-api/v1/update-classes?environment=${GIT_BRANCH}
 
-WINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","win"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
+WINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","win\d"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
 
-LINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","nix"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
+LINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOKEN" --data-urlencode 'query=["~","certname","nix\d"]' https://${PROJECT}-master.classroom.puppet.com:8081/pdb/query/v4/nodes |jq .[].certname |tr -d \"`
 
 # Windows in Hydra is currently broken and needs to have the FQDN fixed
 for HOST in $WINNODES
 do
 	echo "Fixing FQDN on $HOST"
 	bolt command run "\$agent_ip = (Get-NetIPAddress -AddressFamily IPv4 -SuffixOrigin DHCP).IpAddress; \$agent_name = (Get-WmiObject win32_computersystem).DNSHostName; \$agent_host_entry = \"\${agent_ip} ${HOST} \${agent_name}\"; \$agent_host_entry | Out-File -FilePath C:\\Windows\\System32\\Drivers\\etc\\hosts -Append -Encoding ascii" -t winrm://${HOST} --user administrator --password 'Puppetlabs!' --no-ssl
+        bolt command run "(GWMI win32_networkadapterconfiguration -filter 'IPEnabled=True').setdnsdomain('classroom.puppet.com')" -t winrm://${HOST} --user administrator --password 'Puppetlabs!' --no-ssl
 done
 
 # Add comply to classification of any nodes you want to be scanable
