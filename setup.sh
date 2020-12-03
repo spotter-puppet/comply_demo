@@ -13,10 +13,6 @@ then
         ENVIR=production
 fi
 
-### COMPLY SERVER WORK
-# Install Replicated/Comply on Comply Node
-ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}comply0.classroom.puppet.com "sudo setenforce 0; curl -sSL https://pup.pt/comply | sudo bash; echo puppetlabs | sudo sh -lc '/usr/local/bin/kubectl-kots reset-password default'"
-
 ### PUPPET ENTERPRISE WORK
 
 # Need to create Puppet Comply classification and add comply node
