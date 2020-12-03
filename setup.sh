@@ -15,12 +15,7 @@ fi
 
 ### COMPLY SERVER WORK
 # Install Replicated/Comply on Comply Node
-echo "About to install Replicated and Comply Application Stack."
-echo "Please be sure to capture the Kotsadm URL (which should be the IP address of"
-echo "${PROJECT}comply0.classroom.puppet.com) and the randomly generated password"
-echo "You will need the password to log into kotsadm for the next step"
-ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}comply0.classroom.puppet.com "sudo setenforce 0; curl -sSL https://k8s.kurl.sh/comply-unstable | sudo bash"
-read -rsp $"After copying the URL and password, press any key to continue..." -n1 key
+ssh -i ~/.ssh/training.pem -oStrictHostKeyChecking=no centos@${PROJECT}comply0.classroom.puppet.com "sudo setenforce 0; curl -sSL https://pup.pt/comply | sudo bash; echo puppetlabs | sudo sh -lc '/usr/local/bin/kubectl-kots reset-password default'"
 
 ### PUPPET ENTERPRISE WORK
 
@@ -36,7 +31,7 @@ LINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOK
 for HOST in $WINNODES
 do
         echo "Fixing FQDN on $HOST"
-        bolt command run "\$agent_ip = (Get-NetIPAddress -AddressFamily IPv4 -SuffixOrigin DHCP).IpAddress; \$agent_name = (Get-WmiObject win32_computersystem).DNSHostName; \$agent_host_entry = \"\${agent_ip} ${HOST} \${agent_name}\"; \$agent_host_entry | Out-File -FilePath C:\\Windows\\System32\\Drivers\\etc\\hosts -Append -Encoding ascii; (GWMI win32_networkadapterconfiguration -filter 'IPEnabled=True').setdnsdomain('classroom.puppet.com')" -t winrm://${HOST} --user administrator --password 'Puppetlabs!' --no-ssl
+        bolt command run "puppet config set certname ${HOST}" -t winrm://${HOST} --user administrator --password 'Puppetlabs!' --no-ssl
 done
 
 # Add comply to classification of any nodes you want to be scanable
