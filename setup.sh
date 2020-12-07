@@ -27,7 +27,7 @@ LINNODES=`curl -G -H 'Content-Type: application/json' -H "X-Authentication: $TOK
 for HOST in $WINNODES
 do
         echo "Fixing FQDN on $HOST"
-        bolt command run "puppet config set certname ${HOST}" -t winrm://${HOST} --user administrator --password 'Puppetlabs!' --no-ssl
+        bolt command run "puppet config set certname ${HOST}" -t winrm://${HOST} --user administrator --password 'Puppetlabs!' --no-ssl --project .
 done
 
 # Add comply to classification of any nodes you want to be scanable
